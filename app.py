@@ -5,73 +5,95 @@ Created on Wed May  7 00:34:05 2025
 @author: Beam
 """
 
+import streamlit as st
 import pickle
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
-# Load trained model
+# Load model
 with open('random_forest_model.pkl', 'rb') as f:
     model = pickle.load(f)
 
-# Frequency mapping
+# Load LabelEncoder
+label_encoder = LabelEncoder()
+label_encoder.classes_ = [
+    'Classical', 'Country', 'EDM', 'Folk', 'Gospel', 'Hip hop', 'Jazz',
+    'K pop', 'Latin', 'Lofi', 'Metal', 'Pop', 'R&B', 'Rap', 'Rock', 'Video game music'
+]
+
+# Frequency map
 frequency_map = {
     'Never': 0,
     'Sometimes': 1,
     'Often': 2
 }
 
-# User input grouped by genre clusters
+# Streamlit app
+st.title("🎵 Favorite Genre Predictor")
+
+st.write("Answer the following questions to find out your predicted favorite music genre.")
+
+# User questions (sample: 3 groups)
+pop_response = st.selectbox("How often do you listen to catchy, danceable songs (Pop, R&B, K-Pop, Latin)?",
+                            options=['Never', 'Sometimes', 'Often'])
+
+hiphop_response = st.selectbox("Do you enjoy energetic beats and powerful lyrics (Hip-Hop, Rap)?",
+                               options=['Never', 'Sometimes', 'Often'])
+
+classical_response = st.selectbox("Do you like calming, instrumental music (Classical, Jazz, Lofi)?",
+                                  options=['Never', 'Sometimes', 'Often'])
+
+# Convert responses to values
 user_answers = {
-    'Pop/R&B/K-Pop/Latin': 'Often',
-    'Hip-Hop/Rap': 'Often',
-    'Rock/Metal': 'Never',
-    'Classical/Jazz/Lofi': 'Sometimes',
-    'Country/Folk/Gospel': 'Sometimes',
-    'EDM/Video Game Music': 'Often'
+    'Pop/R&B/K-Pop/Latin': pop_response,
+    'Hip-Hop/Rap': hiphop_response,
+    'Classical/Jazz/Lofi': classical_response
 }
 
-# Mapping from group to individual genres
 group_to_genres = {
-    'Classical/Jazz/Lofi': ['Frequency [Classical]', 'Frequency [Jazz]', 'Frequency [Lofi]'],
     'Pop/R&B/K-Pop/Latin': ['Frequency [Pop]', 'Frequency [R&B]', 'Frequency [K pop]', 'Frequency [Latin]'],
     'Hip-Hop/Rap': ['Frequency [Hip hop]', 'Frequency [Rap]'],
-    'Rock/Metal': ['Frequency [Rock]', 'Frequency [Metal]'],
-    'Country/Folk/Gospel': ['Frequency [Country]', 'Frequency [Folk]', 'Frequency [Gospel]'],
-    'EDM/Video Game Music': ['Frequency [EDM]', 'Frequency [Video game music]']
+    'Classical/Jazz/Lofi': ['Frequency [Classical]', 'Frequency [Jazz]', 'Frequency [Lofi]'],
 }
 
-# Construct full feature input for the model
-user_input_full = {}
+# Submit button
+if st.button("Predict"):
+    user_input_full = {}
 
-# Spread the group frequency to each genre feature
-for group, answer in user_answers.items():
-    value = frequency_map[answer]
-    for genre_feature in group_to_genres[group]:
-        user_input_full[genre_feature] = value
+    # Map frequency to genre features
+    for group, answer in user_answers.items():
+        value = frequency_map[answer]
+        for genre_feature in group_to_genres[group]:
+            user_input_full[genre_feature] = value
 
-# Add other features your model requires with default/sample values
-user_input_full.update({
-    'Hours per day': 2,
-    'While working': 1,
-    'Instrumentalist': 0,
-    'Composer': 0,
-    'Foreign languages': 1
-})
+    # Add dummy/default values for required features
+    user_input_full.update({
+        'Hours per day': 2,
+        'While working': 1,
+        'Instrumentalist': 0,
+        'Composer': 0,
+        'Foreign languages': 1,
+        # Fill missing genre features with 0
+        'Frequency [Rock]': 0,
+        'Frequency [Metal]': 0,
+        'Frequency [Country]': 0,
+        'Frequency [Folk]': 0,
+        'Frequency [Gospel]': 0,
+        'Frequency [EDM]': 0,
+        'Frequency [Video game music]': 0
+    })
 
-# Create DataFrame in the right column order
-input_df = pd.DataFrame([user_input_full])
+    # Prepare input dataframe
+    input_df = pd.DataFrame([user_input_full])
+    for col in model.feature_names_in_:
+        if col not in input_df.columns:
+            input_df[col] = 0
+    input_df = input_df[model.feature_names_in_]
 
-# Add any missing columns with 0 (if needed)
-for col in model.feature_names_in_:
-    if col not in input_df.columns:
-        input_df[col] = 0
+    # Predict
+    predicted_label = model.predict(input_df)[0]
+    predicted_genre = label_encoder.inverse_transform([predicted_label])[0]
 
-# Reorder columns to match model input
-input_df = input_df[model.feature_names_in_]
+    st.success(f"🎧 Your predicted favorite genre is: **{predicted_genre}**")
 
-# Make prediction
-predicted_label = model.predict(input_df)[0]
-
-
-# Show result
-print(f"Predicted favorite genre: {predicted_genre}")
 
