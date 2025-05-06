@@ -14,7 +14,7 @@ from sklearn.preprocessing import LabelEncoder
 with open("random_forest_model.pkl", "rb") as f:
     model = pickle.load(f)
 
-# Recreate label encoder with same classes used during training
+# Recreate label encoder with the same classes used during training
 label_encoder = LabelEncoder()
 label_encoder.fit([
     'Classical', 'Country', 'EDM', 'Folk', 'Gospel', 'Hip hop', 'Jazz',
@@ -67,6 +67,7 @@ if st.button("Predict Favorite Genre"):
         st.success(f"🎧 Your predicted favorite music genre is: **{predicted_genre}**")
     except Exception as e:
         st.error(f"Error: {e}")
+
 
 
 
