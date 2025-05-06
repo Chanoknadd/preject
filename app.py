@@ -71,13 +71,6 @@ input_df = input_df[model.feature_names_in_]
 # Make prediction
 predicted_label = model.predict(input_df)[0]
 
-# Optionally decode prediction to genre name
-label_encoder = LabelEncoder()
-label_encoder.classes_ = [
-    'Classical', 'Country', 'EDM', 'Folk', 'Gospel', 'Hip hop', 'Jazz',
-    'K pop', 'Latin', 'Lofi', 'Metal', 'Pop', 'R&B', 'Rap', 'Rock', 'Video game music'
-]
-predicted_genre = label_encoder.inverse_transform([predicted_label])[0]
 
 # Show result
 print(f"Predicted favorite genre: {predicted_genre}")
