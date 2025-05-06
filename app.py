@@ -61,11 +61,12 @@ if st.button("Predict Favorite Genre"):
     ]).reshape(1, -1)  # Adjust depending on model input size
 
     # Predict
-    predicted_label = model.predict(input_data)[0]
-    predicted_genre = label_encoder.inverse_transform([predicted_label])[0]
-
-    # Show result
-    st.success(f"🎧 Your predicted favorite music genre is: **{predicted_genre}**")
+    try:
+        predicted_label = model.predict(input_data)[0]
+        predicted_genre = label_encoder.inverse_transform([predicted_label])[0]
+        st.success(f"🎧 Your predicted favorite music genre is: **{predicted_genre}**")
+    except Exception as e:
+        st.error(f"Error: {e}")
 
 
 
