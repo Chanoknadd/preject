@@ -6,87 +6,97 @@ Created on Wed May  7 00:34:05 2025
 """
 
 import streamlit as st
+import pandas as pd
 import numpy as np
 import pickle
-import pandas as pd
 
-# Load the trained model
-with open("random_forest_model.pkl", "rb") as f:
+# Load trained model and label encoder
+with open('random_forest_model.pkl', 'rb') as f:
     model = pickle.load(f)
 
-# Label encoder for genre prediction
-from sklearn.preprocessing import LabelEncoder
-label_encoder = LabelEncoder()
-label_encoder.fit([
-    'Classical', 'Country', 'EDM', 'Folk', 'Gospel', 'Hip hop', 'Jazz',
-    'K pop', 'Latin', 'Lofi', 'Metal', 'Pop', 'R&B', 'Rap', 'Rock', 'Video game music'
-])
+# Define the genre clusters
+def map_to_cluster(fav_genres):
+    fav_genres = [g.lower() for g in fav_genres]
+    if any(g in ['classical', 'jazz', 'lofi'] for g in fav_genres):
+        return 1
+    elif any(g in ['pop', 'k pop', 'latin', 'r&b'] for g in fav_genres):
+        return 2
+    elif any(g in ['hip hop', 'rap'] for g in fav_genres):
+        return 3
+    elif any(g in ['rock', 'metal'] for g in fav_genres):
+        return 4
+    elif any(g in ['country', 'folk', 'gospel'] for g in fav_genres):
+        return 5
+    elif any(g in ['edm', 'video game music'] for g in fav_genres):
+        return 6
+    else:
+        return 0  # default or unknown
 
-# Frequency mapping
-frequency_map = {'Never': 0, 'Sometimes': 1, 'Often': 2}
+# Feature list
+features = [
+    'Age', 'Frequency [Classical]', 'Frequency [Country]', 'Frequency [EDM]',
+    'Frequency [Folk]', 'Frequency [Gospel]', 'Frequency [Hip hop]',
+    'Frequency [Jazz]', 'Frequency [K pop]', 'Frequency [Latin]',
+    'Frequency [Lofi]', 'Frequency [Metal]', 'Frequency [Pop]', 'Frequency [R&B]',
+    'Frequency [Rap]', 'Frequency [Rock]', 'Frequency [Video game music]',
+    'While working', 'Instrumentalist', 'Composer', 'Foreign languages',
+    'Hours per day', 'Cluster Group'
+]
 
-# Cluster mapping function (for display, not needed in prediction)
-def map_cluster(frequencies):
-    # Dummy function if needed to determine cluster
-    return 1  # Placeholder
-
-# Streamlit UI
-st.title("🎵 Predict Your Favorite Music Genre")
-st.write("Answer the questions below to predict your favorite music genre!")
-
-# User input
-age = st.slider("What's your age?", min_value=10, max_value=80, value=25)
-
-q1 = st.selectbox("How often do you enjoy calming, instrumental, or sophisticated sounds (Classical, Jazz, Lofi)?", ['Never', 'Sometimes', 'Often'])
-q2 = st.selectbox("How often do you enjoy heartfelt lyrics, acoustic sounds, or music rooted in storytelling (Country, Folk, Gospel)?", ['Never', 'Sometimes', 'Often'])
-q3 = st.selectbox("How often do you enjoy high-energy, electronic music or immersive background game music (EDM, Video Game Music)?", ['Never', 'Sometimes', 'Often'])
-q4 = st.selectbox("How often do you enjoy energetic beats and clever lyrics (Hip-Hop, Rap)?", ['Never', 'Sometimes', 'Often'])
-q5 = st.selectbox("How often do you sing along to catchy, chart-topping songs or dance to smooth beats (Pop, R&B, K-Pop, Latin)?", ['Never', 'Sometimes', 'Often'])
-q6 = st.selectbox("How often do you listen to guitar-heavy tracks, loud drums, or rock anthems (Rock, Metal)?", ['Never', 'Sometimes', 'Often'])
-
-# Map user answers to each genre
-input_dict = {
-    'Age': age,
-    'Frequency [Classical]': frequency_map[q1],
-    'Frequency [Jazz]': frequency_map[q1],
-    'Frequency [Lofi]': frequency_map[q1],
-    'Frequency [Country]': frequency_map[q2],
-    'Frequency [Folk]': frequency_map[q2],
-    'Frequency [Gospel]': frequency_map[q2],
-    'Frequency [EDM]': frequency_map[q3],
-    'Frequency [Video game music]': frequency_map[q3],
-    'Frequency [Hip hop]': frequency_map[q4],
-    'Frequency [Rap]': frequency_map[q4],
-    'Frequency [Pop]': frequency_map[q5],
-    'Frequency [R&B]': frequency_map[q5],
-    'Frequency [K pop]': frequency_map[q5],
-    'Frequency [Latin]': frequency_map[q5],
-    'Frequency [Rock]': frequency_map[q6],
-    'Frequency [Metal]': frequency_map[q6],
-    'Cluster Group': 0  # Can update this if used
+# Frequency map
+frequency_map = {
+    'Never': 0,
+    'Sometimes': 1,
+    'Often': 2
 }
 
-# Reorder and fill missing genre frequencies with 0 if not in input_dict
-expected_features = [
-    'Age', 'Frequency [Classical]', 'Frequency [Country]', 'Frequency [EDM]',
-    'Frequency [Folk]', 'Frequency [Gospel]', 'Frequency [Hip hop]', 'Frequency [Jazz]',
-    'Frequency [K pop]', 'Frequency [Latin]', 'Frequency [Lofi]', 'Frequency [Metal]',
-    'Frequency [Pop]', 'Frequency [R&B]', 'Frequency [Rap]', 'Frequency [Rock]',
-    'Frequency [Video game music]', 'Cluster Group']
+binary_map = {'Yes': 1, 'No': 0}
 
-# Fill missing with 0
-for feat in expected_features:
-    if feat not in input_dict:
-        input_dict[feat] = 0
+# Streamlit UI
+st.title("🎵 Music Genre Prediction")
+st.write("Answer the questions below to get your predicted favorite music genre.")
 
-# Create input array for prediction
-input_data = pd.DataFrame([input_dict])[expected_features]
+age = st.slider("Your age:", 10, 80, 25)
+hours = st.slider("How many hours a day do you listen to music?", 0, 12, 2)
 
-# Predict
-if st.button("Predict Genre"):
-    predicted_label = model.predict(input_data)[0]
-    predicted_genre = label_encoder.inverse_transform([predicted_label])[0]
-    st.success(f"🎧 Your predicted favorite genre is: **{predicted_genre}**")
+st.subheader("🎶 How often do you listen to...")
+freq_classical = frequency_map[st.selectbox("Classical / Jazz / Lofi", list(frequency_map.keys()))]
+freq_pop = frequency_map[st.selectbox("Pop / R&B / K-pop / Latin", list(frequency_map.keys()))]
+freq_hiphop = frequency_map[st.selectbox("Hip-Hop / Rap", list(frequency_map.keys()))]
+freq_rock = frequency_map[st.selectbox("Rock / Metal", list(frequency_map.keys()))]
+freq_country = frequency_map[st.selectbox("Country / Folk / Gospel", list(frequency_map.keys()))]
+freq_edm = frequency_map[st.selectbox("EDM / Video Game Music", list(frequency_map.keys()))]
+
+st.subheader("🎧 Background info")
+while_working = binary_map[st.radio("Do you listen to music while working?", list(binary_map.keys()))]
+instrumentalist = binary_map[st.radio("Are you an instrumentalist?", list(binary_map.keys()))]
+composer = binary_map[st.radio("Do you compose music?", list(binary_map.keys()))]
+foreign_languages = binary_map[st.radio("Do you speak foreign languages?", list(binary_map.keys()))]
+
+# Generate full feature vector
+input_data = pd.DataFrame([[
+    age,
+    freq_classical, freq_country, freq_edm,
+    freq_country, freq_country, freq_hiphop,
+    freq_classical, freq_pop, freq_pop,
+    freq_classical, freq_rock, freq_pop, freq_pop,
+    freq_hiphop, freq_rock, freq_edm,
+    while_working, instrumentalist, composer, foreign_languages,
+    hours,
+    map_to_cluster(['Classical' if freq_classical > 0 else '',
+                    'Pop' if freq_pop > 0 else '',
+                    'Hip hop' if freq_hiphop > 0 else '',
+                    'Rock' if freq_rock > 0 else '',
+                    'Country' if freq_country > 0 else '',
+                    'EDM' if freq_edm > 0 else ''])
+]], columns=features)
+
+if st.button("Predict Favorite Genre"):
+    try:
+        prediction = model.predict(input_data)[0]
+        st.success(f"🎵 Your predicted favorite genre label is: {prediction}")
+    except Exception as e:
+        st.error(f"Error in prediction: {e}")
 
 
 
