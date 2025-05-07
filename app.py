@@ -64,12 +64,6 @@ freq_rock = frequency_map[st.selectbox("Rock / Metal", list(frequency_map.keys()
 freq_country = frequency_map[st.selectbox("Country / Folk / Gospel", list(frequency_map.keys()))]
 freq_edm = frequency_map[st.selectbox("EDM / Video Game Music", list(frequency_map.keys()))]
 
-st.subheader("🎧 Background info")
-while_working = binary_map[st.radio("Do you listen to music while working?", list(binary_map.keys()))]
-instrumentalist = binary_map[st.radio("Are you an instrumentalist?", list(binary_map.keys()))]
-composer = binary_map[st.radio("Do you compose music?", list(binary_map.keys()))]
-foreign_languages = binary_map[st.radio("Do you speak foreign languages?", list(binary_map.keys()))]
-
 # Generate full feature vector
 input_data = pd.DataFrame([[
     age,
@@ -78,8 +72,6 @@ input_data = pd.DataFrame([[
     freq_classical, freq_pop, freq_pop,
     freq_classical, freq_rock, freq_pop, freq_pop,
     freq_hiphop, freq_rock, freq_edm,
-    while_working, instrumentalist, composer, foreign_languages,
-    hours,
     map_to_cluster(['Classical' if freq_classical > 0 else '',
                     'Pop' if freq_pop > 0 else '',
                     'Hip hop' if freq_hiphop > 0 else '',
