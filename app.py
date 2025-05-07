@@ -39,8 +39,7 @@ features = [
     'Frequency [Jazz]', 'Frequency [K pop]', 'Frequency [Latin]',
     'Frequency [Lofi]', 'Frequency [Metal]', 'Frequency [Pop]', 'Frequency [R&B]',
     'Frequency [Rap]', 'Frequency [Rock]', 'Frequency [Video game music]',
-    'While working', 'Instrumentalist', 'Composer', 'Foreign languages',
-    'Hours per day', 'Cluster Group'
+    'Cluster Group'
 ]
 
 # Frequency map
@@ -50,14 +49,12 @@ frequency_map = {
     'Often': 2
 }
 
-binary_map = {'Yes': 1, 'No': 0}
 
 # Streamlit UI
 st.title("🎵 Music Genre Prediction")
 st.write("Answer the questions below to get your predicted favorite music genre.")
 
 age = st.slider("Your age:", 10, 80, 25)
-hours = st.slider("How many hours a day do you listen to music?", 0, 12, 2)
 
 st.subheader("🎶 How often do you listen to...")
 freq_classical = frequency_map[st.selectbox("Classical / Jazz / Lofi", list(frequency_map.keys()))]
