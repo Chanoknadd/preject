@@ -9,11 +9,11 @@ import streamlit as st
 import pandas as pd
 import pickle
 
-# Load the trained model
+# Load trained model
 with open('random_forest_model.pkl', 'rb') as file:
     model = pickle.load(file)
 
-# Define genre-to-question mapping
+# Mapping of each genre feature to one of the 6 questions
 genre_group_map = {
     'Frequency [Classical]': 'Q1',
     'Frequency [Jazz]': 'Q1',
@@ -38,19 +38,19 @@ genre_group_map = {
     'Frequency [Latin]': 'Q6'
 }
 
-# Create Streamlit UI
-st.title("🎵 Favorite Music Genre Predictor (6 Questions)")
-st.write("Answer the following to help us predict your favorite genre:")
+# Streamlit UI
+st.title("🎵 Favorite Music Genre Predictor")
+st.write("Answer 6 questions about your listening habits (0 = Never, 4 = Very Often):")
 
-# Ask 6 frequency questions
-q1 = st.slider("1. How often do you listen to relaxing/classical genres (Classical, Jazz, Folk, Gospel)?", 0, 4, 2)
-q2 = st.slider("2. How often do you listen to acoustic genres (Country, Lofi)?", 0, 4, 2)
-q3 = st.slider("3. How often do you listen to electronic or gaming music (EDM, Video Game Music)?", 0, 4, 2)
-q4 = st.slider("4. How often do you listen to hip hop/rap?", 0, 4, 2)
-q5 = st.slider("5. How often do you listen to pop and dance genres (Pop, K-pop, R&B)?", 0, 4, 2)
+# Frequency inputs (0-4 scale)
+q1 = st.slider("1. How often do you listen to classical/relaxing music? (Classical, Jazz, Folk, Gospel)", 0, 4, 2)
+q2 = st.slider("2. How often do you listen to acoustic/lofi genres? (Country, Lofi)", 0, 4, 2)
+q3 = st.slider("3. How often do you listen to electronic or game music? (EDM, Video game music)", 0, 4, 2)
+q4 = st.slider("4. How often do you listen to hip hop or rap?", 0, 4, 2)
+q5 = st.slider("5. How often do you listen to pop or dance genres? (Pop, K-pop, R&B)", 0, 4, 2)
 q6 = st.slider("6. How often do you listen to rock, metal, or Latin music?", 0, 4, 2)
 
-# Store answers
+# Store answers by question ID
 group_answers = {
     'Q1': q1,
     'Q2': q2,
@@ -60,20 +60,17 @@ group_answers = {
     'Q6': q6
 }
 
-# Create feature dictionary
+# Prepare input features mapped from 6 questions
 input_features = {}
 for genre_feature, group_id in genre_group_map.items():
     input_features[genre_feature] = group_answers[group_id]
 
-# Convert to DataFrame
-input_df = pd.DataFrame([input_features])
+# Ensure the DataFrame has all the correct columns in correct order
+expected_features = model.feature_names_in_
+input_df = pd.DataFrame([[input_features.get(feat, 0) for feat in expected_features]],
+                        columns=expected_features)
 
-# Predict
+# Prediction button
 if st.button("🎧 Predict My Favorite Genre"):
     prediction = model.predict(input_df)
     st.success(f"Your predicted favorite genre is: **{prediction[0]}** 🎶")
-
-
-
-
-
