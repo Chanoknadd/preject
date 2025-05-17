@@ -17,38 +17,40 @@ with open('random_forest_model.pkl', 'rb') as file:
 genre_group_map = {
     'Frequency [Classical]': 'Q1',
     'Frequency [Jazz]': 'Q1',
-    'Frequency [Folk]': 'Q1',
-    'Frequency [Gospel]': 'Q1',
+    'Frequency [Lofi]': 'Q1',
 
-    'Frequency [Country]': 'Q2',
-    'Frequency [Lofi]': 'Q2',
+    'Frequency [Pop]': 'Q2',
+    'Frequency [K pop]': 'Q2',
+    'Frequency [Latin]': 'Q2',
+    'Frequency [R&B]': 'Q2',
+    
+    'Frequency [Hip hop]': 'Q3',
+    'Frequency [Rap]': 'Q3',
 
-    'Frequency [EDM]': 'Q3',
-    'Frequency [Video game music]': 'Q3',
+    'Frequency [Rock]': 'Q4',
+    'Frequency [Metal]': 'Q4',
 
-    'Frequency [Hip hop]': 'Q4',
-    'Frequency [Rap]': 'Q4',
+    'Frequency [Country]': 'Q5',
+    'Frequency [Folk]': 'Q5'
+    'Frequency [Gospel]': 'Q5',
 
-    'Frequency [Pop]': 'Q5',
-    'Frequency [K pop]': 'Q5',
-    'Frequency [R&B]': 'Q5',
-
-    'Frequency [Rock]': 'Q6',
-    'Frequency [Metal]': 'Q6',
-    'Frequency [Latin]': 'Q6'
+    'Frequency [EDM]': 'Q6',
+    'Frequency [Video game music]': 'Q6',
+    
 }
 
 # Streamlit UI
 st.title("🎵 Favorite Music Genre Predictor")
+st.write("Enter your Age")
 st.write("Answer 6 questions about your listening habits (0 = Never, 4 = Very Often):")
 
 # Frequency inputs (0-4 scale)
-q1 = st.slider("1. How often do you listen to classical/relaxing music? (Classical, Jazz, Folk, Gospel)", 0, 4, 2)
-q2 = st.slider("2. How often do you listen to acoustic/lofi genres? (Country, Lofi)", 0, 4, 2)
-q3 = st.slider("3. How often do you listen to electronic or game music? (EDM, Video game music)", 0, 4, 2)
-q4 = st.slider("4. How often do you listen to hip hop or rap?", 0, 4, 2)
-q5 = st.slider("5. How often do you listen to pop or dance genres? (Pop, K-pop, R&B)", 0, 4, 2)
-q6 = st.slider("6. How often do you listen to rock, metal, or Latin music?", 0, 4, 2)
+q1 = st.slider("1. How often do you listen to classical/relaxing music? (Classical, Jazz, Lofi)", 0, 4, 2)
+q2 = st.slider("2. How often do you listen to pop or dance genres? (pop, k pop, latin, r&b)", 0, 4, 2)
+q3 = st.slider("3. How often do you listen to hip hop or rap? (hip hop, rap)", 0, 4, 2)
+q4 = st.slider("4. How often do you listen to rock, metal? (rock, metal)", 0, 4, 2)
+q5 = st.slider("5. How often do you listen to acoustic/relaxing music? (country, folk, gospel)", 0, 4, 2)
+q6 = st.slider("6. How often do you listen to electronic or game music? (EDM, Video game music)", 0, 4, 2)
 
 # Store answers by question ID
 group_answers = {
