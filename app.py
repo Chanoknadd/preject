@@ -41,8 +41,10 @@ genre_group_map = {
 
 # Streamlit UI
 st.title("🎵 Favorite Music Genre Predictor")
-st.write("Enter your Age")
 st.write("Answer 6 questions about your listening habits (0 = Never, 4 = Very Often):")
+
+# Add age input
+age = st.number_input("Your age:", min_value=10, max_value=100, value=25, step=1)
 
 # Frequency inputs (0-4 scale)
 q1 = st.slider("1. How often do you listen to classical/relaxing music? (Classical, Jazz, Lofi)", 0, 4, 2)
