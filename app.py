@@ -31,7 +31,7 @@ genre_group_map = {
     'Frequency [Metal]': 'Q4',
 
     'Frequency [Country]': 'Q5',
-    'Frequency [Folk]': 'Q5'
+    'Frequency [Folk]': 'Q5',
     'Frequency [Gospel]': 'Q5',
 
     'Frequency [EDM]': 'Q6',
