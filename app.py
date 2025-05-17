@@ -10,7 +10,7 @@ import pandas as pd
 import pickle
 
 # Load the trained RandomForest model
-with open('random_forest_model (1).pkl', 'rb') as file:
+with open('random_forest_model.pkl', 'rb') as file:
     model = pickle.load(file)
 
 # List of music genres used as features
